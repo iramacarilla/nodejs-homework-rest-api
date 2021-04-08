@@ -150,15 +150,7 @@ const avatars = async (req, res, next) => {
   const pathFile =  path.join(storageDir, `${id}-${req.file.originalname}`)
   await fs.rename(temPathFile, pathFile)
   const url = await updateAvatar(id, pathFile)
-  try {
-    await fs.unlink(
-       req.user.avatarURL,
-    )
-  } catch (error) {
-    await fs.unlink(temPathFile)
-    next(error)
-  }
-return res.status(HttpCode.OK).json({ 
+  return res.status(HttpCode.OK).json({ 
   status: 'success',
   code: HttpCode.OK,
   message: 'Your avatar is updated',
