@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const SALT_FACTOR = 6;
 const {Subscription} = require('../helpers/constans')
 const { Schema } = mongoose;
+const gravatar = require('gravatar')
 
 
 
@@ -20,10 +21,15 @@ const { Schema } = mongoose;
           return reg.test(String(value).toLowerCase())
         }*/
     },
+    avatarURL: {
+      type: String,
+      default: function() {
+        return gravatar.url(this.email, {s: '250'}, true)
+      }
+    },
     password: {
       type: String,
       minlength: 7,
-      //maxlength: 15,
       //required: [true, 'Password is required']
     },
     subscription: {

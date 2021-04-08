@@ -1,5 +1,6 @@
-//const jwt = require('jsonwebtoken');
+const fs = require('fs');
 
+const jimp = require('jimp')
 const User = require('../schemas/userSchema')
 
 const findById = async id => {
@@ -21,14 +22,21 @@ const findByEmail = async email => {
     return user
   }
   const updateUser = async (id, subscription) => {
-    const user = User.findByIdAndUpdate({ _id: id}, {subscription}, { new: true })
+    const user = await User.findByIdAndUpdate({ _id: id}, {subscription}, { new: true })
     return user
   }
+  const updateAvatar = async (id, avatarURL) => {
+    const user = await User.findByIdAndUpdate({ _id: id}, {avatarURL},  { new: true })
+    return user
+  }
+  
 
   module.exports = {
     findById,
     findByEmail,
     createNewUser,
     updateToken,
-    updateUser
+    updateUser,
+    updateAvatar,
+ 
   }

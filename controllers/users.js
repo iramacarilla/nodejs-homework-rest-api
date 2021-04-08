@@ -2,14 +2,18 @@
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 dotenv.config();
-const { findById, findByEmail,  updateToken, updateUser } = require('../model/users');
+const { findById, findByEmail,  updateToken, updateUser, updateAvatar } = require('../model/users');
 const User = require('../schemas/userSchema');
 const {Subscription} = require('../helpers/constans')
-const {HttpCode} = require('../helpers/constans')
+const {HttpCode} = require('../helpers/constans');
+const jimp = require('jimp');
+const  path  = require('path');
+const fs = require('fs').promises;
+
 
 const SECRET_KEY = process.env.SECRET_KEY
 
-
+const storageDir = path.join(process.cwd(), 'public', 'avatars')
 
   
   const registration = async (req, res, next) => {
@@ -33,6 +37,7 @@ const SECRET_KEY = process.env.SECRET_KEY
         data: {
            email: newUser.email,
            subscription: newUser.subscription,
+           avatarURL: newUser.avatarURL,
            //newUser,
           message: 'Registration successful'
         },
@@ -136,10 +141,43 @@ const updateSub =  async (req, res, next) => {
  }
 }
 
+const avatars = async (req, res, next) => {
+  try {
+  const temPathFile = req.file.path
+  const id = req.user.id
+  const img = await jimp.read(temPathFile)
+  await img.autocrop().cover(250, 250, jimp.HORIZONTAL_ALIGN_CENTER || jimp.VERTICAL_ALIGN_MIDDLE).writeAsync(temPathFile)
+  const pathFile =  path.join(storageDir, `${id}-${req.file.originalname}`)
+  await fs.rename(temPathFile, pathFile)
+  const url = await updateAvatar(id, pathFile)
+  try {
+    await fs.unlink(
+       req.user.avatarURL,
+    )
+  } catch (error) {
+    await fs.unlink(temPathFile)
+    next(error)
+  }
+return res.status(HttpCode.OK).json({ 
+  status: 'success',
+  code: HttpCode.OK,
+  message: 'Your avatar is updated',
+  data: {
+     alatarURL: url.avatarURL
+      },
+  })
+} 
+catch(error)
+{ 
+  next(error)
+}
+}
+
 module.exports = {
  login,
  registration,
  logout,
  current,
- updateSub
+ updateSub,
+ avatars
 }
