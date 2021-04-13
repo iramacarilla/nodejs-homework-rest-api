@@ -8,7 +8,7 @@ const schemaRegLogin = Joi.object({
     repeat_password: Joi.ref('password'),
 
     email: Joi.string()
-        .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).required()
+        .email({ minDomainSegments: 2, tlds: { allow: ['com', 'ru','net'] } }).required()
 })
 
 
